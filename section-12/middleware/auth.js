@@ -14,6 +14,8 @@ const auth=async(req,res,next)=>
         {
             throw new Error()
         }
+        req.student=student
+        next()
     }catch(e)
     {
         res.status(401).send({error:'please authenticate.'})
