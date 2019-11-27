@@ -35,6 +35,10 @@ router.post('/student', async(req, res) => {
      //     res.status(500).send(e)
      // })
   })
+
+  router.get('/student/me',auth,async (req, res) => {
+    res.send(req.student)
+ })
  
   router.get('/student/:id', async(req, res) => {
     

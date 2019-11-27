@@ -79,7 +79,7 @@ userSchema.methods.generateAuthToken= async function()
     //console.log("generate token function called..")
     const student=this;
     //console.log(student)
-    const token=jwt.sign({_id:student._id.toString()},'thisisnewforme',{expiresIn:'7 seconds'})
+    const token=jwt.sign({_id:student._id.toString()},'thisisnewforme',{expiresIn:'7 days'})
     //console.log("token...",token)
     student.tokens = student.tokens.concat({ token })
     await student.save()
