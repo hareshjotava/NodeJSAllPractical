@@ -25,3 +25,15 @@ app.use(tasksRouter)
 app.listen(port, () => {
     console.log('Server is up on port ' + port)
 })
+
+
+// const Task=require('./models/task')
+// const Student=require('./models/student')
+
+// const main=async()=>{
+//     const student=await Student.findById('5ddf9aa60d461a13449d6a5b')
+//     await student.populate('tasks').execPopulate()
+//     console.log(student.tasks)
+// }
+// main()
+

@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt=require('bcryptjs')
 const jwt=require('jsonwebtoken')
+const Task=require('./task')
 
 const userSchema= new mongoose.Schema( {
     name: 
@@ -65,6 +66,13 @@ const userSchema= new mongoose.Schema( {
 
 })
 
+userSchema.virtual('tasks',{
+    ref:'Task',
+    localField:'_id',
+    foreignField:'owner'
+})
+
+//password hashing
 userSchema.pre('save',async function(next){
     const student=this
     if(student.isModified('password'))
@@ -73,6 +81,24 @@ userSchema.pre('save',async function(next){
     }
     next()
 })
+
+//delete user tasks when user is removed
+userSchema.pre('remove',async function(next){
+    const student=this
+    await Task.deleteMany({owner:student.id})
+    next()
+})
+
+userSchema.methods.toJSON= function()
+{ 
+    const student=this
+    const studentObject=student.toObject()
+
+    delete studentObject.password
+    delete studentObject.tokens
+
+    return studentObject
+}
 
 userSchema.methods.generateAuthToken= async function()
 {
