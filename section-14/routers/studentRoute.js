@@ -1,4 +1,5 @@
 const express=require('express')
+const multer=require('multer')
 const router=new express.Router();
 const auth=require('../middleware/auth')
 const Student = require('../models/student')
@@ -39,6 +40,32 @@ router.post('/student', async(req, res) => {
   router.get('/student/me',auth,async (req, res) => {
     res.send(req.student)
  })
+
+ const upload=multer({
+     //dest:'avatar',
+     limit:{
+         filesize:1000000
+     },
+     fileFilter(req,file,cb)
+     {
+         if(!file.originalname.match(/\.(doc|docx)$/))
+         {
+            return cb(new Error('Please upload a Word document'))
+         }
+
+         cb(undefined,true)
+
+         //cb(new Error('File must be a PDF'))
+         //cb(undefined,true)
+         //cb(undefined,false)
+     }
+ })
+ router.post('/student/me/avatar',auth,upload.single('uploadone'),async (req, res) => {
+    req.user.avatar=req.file.buffer
+    res.send()
+ }, (error, req, res, next) => {
+    res.status(400).send({ error: error.message })
+})
  
 router.post('/student/logout',auth,async(req,res)=>{
     console.log("logout page....")
