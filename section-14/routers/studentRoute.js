@@ -3,6 +3,7 @@ const multer=require('multer')
 const router=new express.Router();
 const auth=require('../middleware/auth')
 const Student = require('../models/student')
+const sharp=require('sharp')
 
 router.post('/student', async(req, res) => {
     // res.send("testing")
@@ -48,9 +49,10 @@ router.post('/student', async(req, res) => {
      },
      fileFilter(req,file,cb)
      {
-         if(!file.originalname.match(/\.(doc|docx)$/))
+         //if(!file.originalname.match(/\.(doc|docx)$/))
+         if(!file.originalname.match(/\.(png|jpg)$/))
          {
-            return cb(new Error('Please upload a Word document'))
+            return cb(new Error('Please upload a png and jpg'))
          }
 
          cb(undefined,true)
@@ -61,12 +63,41 @@ router.post('/student', async(req, res) => {
      }
  })
  router.post('/student/me/avatar',auth,upload.single('uploadone'),async (req, res) => {
-    req.user.avatar=req.file.buffer
+    const buffer=await sharp(req.file.buffer).resize({width:150,height:150}).png().toBuffer()
+    req.student.avatar=buffer
+    //console.log("Avatar ......",req.file.buffer)
+    //req.student.avatar=req.file.buffer
+    await req.student.save()
     res.send()
  }, (error, req, res, next) => {
     res.status(400).send({ error: error.message })
 })
  
+router.delete('/student/me/avatar',auth,async (req, res) => {
+    //console.log("Avatar ......",req.file.buffer)
+    req.student.avatar=undefined
+    await req.student.save()
+    res.send()
+ })
+
+ router.get('/student/:id/avatar',async(req,res)=>{
+    try{ 
+    const student= await Student.findById(req.params.id)
+    console.log("return student........",student)
+     if(!student || !student.avatar)
+     {
+        throw new Error()
+     }
+
+     res.set('Content-Type','image/png')
+     res.send(student.avatar)
+    }
+    catch(e)
+    {
+        res.status(404).send()
+    }
+ })
+
 router.post('/student/logout',auth,async(req,res)=>{
     console.log("logout page....")
     try {
